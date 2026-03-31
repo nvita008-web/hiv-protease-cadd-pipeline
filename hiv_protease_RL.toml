@@ -1,0 +1,47 @@
+run_type = "staged_learning"
+device = "cpu"
+tb_logdir = "tb_RL_hiv"
+json_out_config = "json_RL_hiv.json"
+
+[parameters]
+summary_csv_prefix = "hiv_protease_RL"
+use_checkpoint = true
+prior_file = "/Users/nicolevita/Documents/Portfolio/hiv_protease_TL.model"
+agent_file = "/Users/nicolevita/Documents/Portfolio/hiv_protease_RL.chkpt"
+batch_size = 16
+unique_sequences = true
+randomize_smiles = true
+tb_isim = false
+
+[learning_strategy]
+type = "dap"
+sigma = 128
+rate = 0.0001
+
+[diversity_filter]
+type = "IdenticalMurckoScaffold"
+bucket_size = 25
+minscore = 0.4
+minsimilarity = 0.4
+penalty_multiplier = 0.5
+
+[[stage]]
+chkpt_file = "hiv_protease_RL.chkpt"
+termination = "simple"
+max_score = 0.99
+min_steps = 10
+max_steps = 300
+
+[stage.scoring]
+type = "geometric_mean"
+
+[[stage.scoring.component]]
+[stage.scoring.component.ExternalProcess]
+
+[[stage.scoring.component.ExternalProcess.endpoint]]
+name = "vina_docking"
+weight = 1.0
+
+params.executable = "/Users/nicolevita/yes/envs/reinvent4/bin/python"
+params.args = "/Users/nicolevita/Documents/Portfolio/vina_scorer.py"
+params.property = "docking_score"
